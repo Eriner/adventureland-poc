@@ -1,0 +1,36 @@
+# One of these days I'll figure out how to get this working in Alpine...
+# CURRENTLY BROKEN
+FROM golang:alpine as build
+RUN mkdir -p ${GO}/src/private/albot
+COPY . ${GO}/src/private/albot
+WORKDIR ${GO}/src/private/albot
+RUN go build -o /exe -ldflags "-X main.Alpine=true" main.go
+#RUN go build -o /deps deps.go
+
+FROM alpine:edge AS base
+
+# Install certificates
+RUN apk add -U --no-cache ca-certificates
+
+# Install (Chromium) Playwright dependencies
+# ref: https://git.alpinelinux.org/aports/tree/community/chromium/APKBUILD#n77
+RUN apk add --no-cache eudev-libs ttf-opensans
+RUN apk add --no-cache chromium
+
+# Add user and group(s)
+RUN addgroup appuser && \
+    adduser --disabled-password --ingroup appuser appuser && \
+    adduser appuser audio && \
+    adduser appuser video
+
+
+RUN mkdir -p /app/config && chown -R appuser:appuser /app
+
+# HACK needed for Chrome/Playwright to launch. Error that occurs when this hack
+# isn't in place are... unhelpful. DO NOT REMOVE!
+RUN mkdir -p "/home/appuser/Downloads" && chown -R appuser:appuser "/home/appuser"
+USER appuser
+COPY --from=build /exe /app/exe
+COPY ./config.yaml /app/config/config.yaml
+WORKDIR /app
+ENTRYPOINT ["/app/exe"]
