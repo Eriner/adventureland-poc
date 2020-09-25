@@ -21,8 +21,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/eriner/playwright-go" // fork of "github.com/mxschmitt/playwright-go"
 	"github.com/mitchellh/mapstructure"
+	"github.com/mxschmitt/playwright-go"
 	"github.com/spf13/viper"
 )
 

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/eriner/playwright-go"
+	"github.com/mxschmitt/playwright-go"
 )
 
 func main() {
